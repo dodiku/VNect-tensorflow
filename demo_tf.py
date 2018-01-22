@@ -10,8 +10,12 @@ from mpl_toolkits.mplot3d import Axes3D
 from models.nets import vnect_model_bn_folded as vnect_model
 import utils.utils as utils
 
+# OSC
+from osc_send import OSCServer
+OSC_server = OSCServer()
+
 parser = argparse.ArgumentParser()
-parser.add_argument('--demo_type', default='image')
+parser.add_argument('--demo_type', default='webcam')
 parser.add_argument('--device', default='cpu')
 parser.add_argument('--model_file', default='models/weights/vnect_tf')
 parser.add_argument('--test_img', default='test_imgs/yuniko.jpg')
@@ -255,7 +259,7 @@ def demo_webcam():
                 # Display 2d results
                 concat_img = np.concatenate((cam_img[:, :, ::-1], joint_map), axis=1)
                 ax2.imshow(concat_img.astype(np.uint8))
-            plt.pause(0.00001)
+            plt.pause(0.000000001)
             plt.show(block=False)
 
         elif args.plot_2d:
@@ -264,6 +268,9 @@ def demo_webcam():
             if cv2.waitKey(1) == ord('q'): break
 
         print('FPS: {:>2.2f}'.format(1 / (time.time() - t1)))
+
+        OSC_server.send('/joints', joints_3d)
+        # temp_list = joints_3d.reshape(-1,joints_3d.shape[0]*joints_3d.shape[1]).astype(float).tolist()
 
 
 
