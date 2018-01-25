@@ -12,7 +12,7 @@ import utils.utils as utils
 
 # OSC
 from osc_send import OSCServer
-OSC_server = OSCServer()
+OSC_server = OSCServer('192.168.1.8', 7483)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--demo_type', default='webcam')
@@ -47,8 +47,9 @@ def demo_single_image():
     if args.plot_3d:
         plt.ion()
         fig = plt.figure()
-        ax = fig.add_subplot(121, projection='3d')
-        ax2 = fig.add_subplot(122)
+        # fig.set_size_inches( 12,12 )
+        # ax = fig.add_subplot(121, projection='3d')
+        # ax2 = fig.add_subplot(122)
         plt.show()
 
     # Create model
@@ -132,22 +133,23 @@ def demo_single_image():
 
     print('FPS: {:>2.2f}'.format(1 / (time.time() - t1)))
 
+
     if args.plot_3d:
-        ax.clear()
-        ax.view_init(azim=0, elev=90)
-        ax.set_xlim(-50, 50)
-        ax.set_ylim(-50, 50)
-        ax.set_zlim(-50, 50)
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_zlabel('z')
-        utils.draw_limbs_3d(joints_3d, limb_parents, ax)
+        # ax.clear()
+        # ax.view_init(azim=0, elev=90)
+        # ax.set_xlim(-50, 50)
+        # ax.set_ylim(-50, 50)
+        # ax.set_zlim(-50, 50)
+        # ax.set_xlabel('x')
+        # ax.set_ylabel('y')
+        # ax.set_zlabel('z')
+        # utils.draw_limbs_3d(joints_3d, limb_parents, ax)
 
         if args.plot_2d:
             # Display 2d results
             concat_img = np.concatenate((cam_img[:, :, ::-1], joint_map), axis=1)
-            ax2.imshow(concat_img.astype(np.uint8))
-        plt.pause(100000)
+            plt.imshow(concat_img.astype(np.uint8))
+        plt.pause(0.00000000100000)
         plt.show(block=False)
 
     elif args.plot_2d:
@@ -155,14 +157,17 @@ def demo_single_image():
         cv2.imshow('2D img', concat_img.astype(np.uint8))
         cv2.waitKey(1)
 
+    while True:
+        time.sleep(2)
+        OSC_server.send('/joints', joints_2d, hm)
 
 
 def demo_webcam():
     if args.plot_3d:
         plt.ion()
         fig = plt.figure()
-        ax = fig.add_subplot(121, projection='3d')
-        ax2 = fig.add_subplot(122)
+        # ax = fig.add_subplot(121, projection='3d')
+        # ax2 = fig.add_subplot(122)
         plt.show()
 
     # Create model
@@ -245,20 +250,20 @@ def demo_webcam():
             utils.draw_limbs_2d(cam_img, joints_2d, limb_parents)
 
         if args.plot_3d:
-            ax.clear()
-            ax.view_init(azim=0, elev=90)
-            ax.set_xlim(-50, 50)
-            ax.set_ylim(-50, 50)
-            ax.set_zlim(-50, 50)
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
-            ax.set_zlabel('z')
-            utils.draw_limbs_3d(joints_3d, limb_parents, ax)
+            # ax.clear()
+            # ax.view_init(azim=0, elev=90)
+            # ax.set_xlim(-50, 50)
+            # ax.set_ylim(-50, 50)
+            # ax.set_zlim(-50, 50)
+            # ax.set_xlabel('x')
+            # ax.set_ylabel('y')
+            # ax.set_zlabel('z')
+            # utils.draw_limbs_3d(joints_3d, limb_parents, ax)
 
             if args.plot_2d:
                 # Display 2d results
                 concat_img = np.concatenate((cam_img[:, :, ::-1], joint_map), axis=1)
-                ax2.imshow(concat_img.astype(np.uint8))
+                plt.imshow(concat_img.astype(np.uint8))
             plt.pause(0.000000001)
             plt.show(block=False)
 
@@ -269,7 +274,7 @@ def demo_webcam():
 
         print('FPS: {:>2.2f}'.format(1 / (time.time() - t1)))
 
-        OSC_server.send('/joints', joints_3d)
+        OSC_server.send('/joints', joints_2d, hm)
         # temp_list = joints_3d.reshape(-1,joints_3d.shape[0]*joints_3d.shape[1]).astype(float).tolist()
 
 
